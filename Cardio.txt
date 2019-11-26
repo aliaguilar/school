@@ -1,0 +1,169 @@
+import openpyxl
+import tkinter as tk
+from tkinter import *
+from tkinter.ttk import *
+from PIL import ImageTk, Image
+import os
+
+class Application:
+    #Obtener evidencias y dato a calcular
+    def retrieve_data(self):
+        self.asalariado_dato = self.asalariado_combo.get()
+        self.genero_dato = self.genero_combo.get()
+        self.hipertension_dato = self.hipertension_combo.get()
+        self.muerte_dato = self.muerte_combo.get()
+        self.peticion_dato = self.peticion_combo.get()
+
+    #Mostrar el resultado deseado
+    def pop_up(self,prob):
+        result = tk.Toplevel()
+        result.geometry('240x100')
+        result.wm_title("Probability result")
+        result_label = Label(result, text="Probability: " + str(round(100*prob,4)) + "%",font=("Arial Bold",13))
+        ok_button = Button(result,text = "Ok", command = result.destroy)
+        result_label.grid(column=1, row=1)
+        ok_button.grid(column = 2, row=2)
+
+    #Obtención de probabilidades de las evidencias
+    def calculate(self):
+        self.retrieve_data()
+        #Obtener dato asalariado
+        self.bayes_algorithm()
+        #self.calculate_simple(possitive,negative,self.asalariado_prob,self.genero_prob,self.hipertenso_prob,self.muerte_prob)
+        self.pop_up(self.probability)
+
+    #Cálculo general de inferencias de Bayes
+    def bayes_algorithm(self):
+        #Lists to iterate through all the probability table
+        salary_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        gender_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        hypertense_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        death_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+        probabilities_list = [0.013291488,0.016245152,0.053461318,0.227914042,0.008293018,0.01013591,0.058775117,0.250567603,0.009365252,0.01144642,0.029274502, 0.124801826,0.009912748, 0.01211558,0.030985898, 0.132097774]
+        product_possitive_negative_list = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        product_possitive_list = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+        pos = 0
+        pos_neg = 0 
+        
+
+        #Change value to choose probabilities to take into account
+        if self.asalariado_dato == "Yes":
+            salary_states_list = [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0]
+        elif self.asalariado_dato == "No":
+            salary_states_list = [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]
+        else:
+            salary_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
+        if self.genero_dato == "Male":
+            gender_states_list = [1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0]
+        elif self.genero_dato == "Female":
+            gender_states_list = [0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1]
+        else:
+            gender_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
+        if self.hipertension_dato == "Yes":
+            hypertense_states_list = [1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0]
+        elif self.hipertension_dato == "No":
+            hypertense_states_list = [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1]
+        else:
+            hypertense_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
+        if self.muerte_dato == "Yes":
+            death_states_list = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+        elif self.muerte_dato == "No":
+            death_states_list = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+        else:
+            death_states_list = [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+
+        #Probabilities to take into account for the requested value
+        if self.peticion_dato == "Salaried":
+            possitive = [1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0]    
+        elif self.peticion_dato == "Not salaried":
+            possitive = [0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1] 
+        elif self.peticion_dato == "Men":
+            possitive = [1,1,1,1,0,0,0,0,1,1,1,1,0,0,0,0]
+        elif self.peticion_dato == "Women":
+            possitive = [0,0,0,0,1,1,1,1,0,0,0,0,1,1,1,1]
+
+        elif self.peticion_dato == "Hypertense":
+            possitive = [1,1,0,0,1,1,0,0,1,1,0,0,1,1,0,0]
+
+        elif self.peticion_dato == "Not hypertense":
+            possitive = [0,0,1,1,0,0,1,1,0,0,1,1,0,0,1,1]
+
+        elif self.peticion_dato == "Die from heart desease":
+            possitive = [1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0]
+        
+        elif self.peticion_dato == "Do not die from heart desease":
+            possitive = [0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1]
+
+        
+        for i in range (0,16):
+            if salary_states_list[i] == 1 and gender_states_list[i] == 1 and hypertense_states_list[i] == 1 and death_states_list[i] == 1:
+                product_possitive_negative_list[i]= probabilities_list[i]
+                product_possitive_list[i] = product_possitive_negative_list[i]*possitive[i]
+        for pos_value in product_possitive_list:
+            pos = pos + pos_value
+                    
+        for pos_neg_value in product_possitive_negative_list:
+            pos_neg = pos_neg + pos_neg_value
+                
+        self.probability =  pos/pos_neg
+        print("Desired probability:")
+        print(self.probability)              
+                
+    #Creación de ventana principal
+    def init(self):
+        asalariado_label = Label(window, text="Salaried?",font=("Arial Bold",13))
+        genero_label = Label(window, text="Gender",font=("Arial Bold",13))
+        hipertension_label = Label(window, text="Hypertense?",font=("Arial Bold",13))
+        muerte_label = Label(window, text="Died from heart disease?",font=("Arial Bold",13))
+        peticion_label = Label(window, text="Which probability would you like to calculate?",font=("Arial Bold",13))
+
+        calcular_button = Button(window, text = "Get value",command = self.calculate)
+
+        self.asalariado_combo = Combobox(window)
+        self.genero_combo = Combobox(window)
+        self.hipertension_combo = Combobox(window)
+        self.muerte_combo = Combobox(window)
+        self.peticion_combo = Combobox(window)
+
+        self.asalariado_combo['values']= ("Yes", "No", "N/A")
+        self.genero_combo['values'] = ("Female","Male","N/A")
+        self.hipertension_combo['values'] = ("Yes", "No", "N/A")
+        self.muerte_combo['values'] = ("Yes", "No", "N/A")
+        self.peticion_combo['values'] = ("Salaried", "Not salaried", "Men", "Women", "Hypertense", "Not hypertense","Die from heart desease","Do not die from heart desease")
+
+        asalariado_label.grid(column = 5, row = 5)
+        genero_label.grid(column = 5, row = 6)
+        hipertension_label.grid(column = 5, row = 7)
+        muerte_label.grid(column = 5, row = 8)
+        peticion_label.grid(column = 5, row = 9)
+        calcular_button.grid(column = 5, row = 10)
+
+        self.asalariado_combo.grid(column = 6, row = 5)
+        self.genero_combo.grid(column = 6, row = 6)
+        self.hipertension_combo.grid(column = 6, row = 7)
+        self.muerte_combo.grid(column = 6, row = 8)
+        self.peticion_combo.grid(column = 6, row = 9)
+    
+
+
+window = Tk()
+img= ImageTk.PhotoImage(Image.open("diagrama.gif"))
+imglabel = Label(window, image=img).grid(row=18, column=5)  
+
+window.title("Heart attack risk")
+window.geometry('510x500')
+app = Application()
+
+app.init()
+window.mainloop()
+
+
+
+
+
+
+
+
