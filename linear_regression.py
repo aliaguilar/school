@@ -111,6 +111,8 @@ errors_list = []
 epochs = 0
 e = 5
 
+a = "S"
+
 while e > 0.65:
 
     for instance in range(0, items):
@@ -148,6 +150,19 @@ while e > 0.65:
 equation = str(tetha1) + "*x1 +" + str(tetha2) + "*x2 +" + str(tetha3) + "*x3 +" + str(tetha5) + "*x4 +" + str(tetha8) + "*x5 +" + str(tetha11)
 print("Resulting equation:")
 print(equation)
+
+while (a != "No"):
+    
+    x1 = input("Enter Fixed acidity value: ")
+    x2 = input("Enter volatile acidity value: ")
+    x3 = input("Enter citric acidity value: ")
+    x4 = input("Enter chlorides value: ")
+    x5 = input("Enter density value:")
+    x6 = input("Enter alcohol value:")
+    predict =  float(x1)*tetha1 + float(x2)*tetha2 + float(x3)*tetha3 + float(x4)*tetha5 + float(x5)*tetha8 + float(x6)*tetha11
+    print("The quality is:", predict )
+    a = input("Do you want to predict the quality of another wine? Yes/No")
+
 
 
 
